@@ -1,0 +1,1 @@
+When you first clone this repository, the data required to run the app will not be available. Run the "process_federal_emphasis_area_data.R" script located in the "pre-process" folder first to generate the necessary data files and then the web app will run.
