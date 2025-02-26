@@ -169,7 +169,7 @@ psrc_column_chart <- function(df, x, y, fill, colors, labels=scales::label_comma
 
 psrc_bar_chart <- function(df, x, y, fill, colors, labels=scales::label_comma(), dec=0, chart_style=psrc_infogram_style(), title=NULL, source=NULL, pos="dodge", legend = TRUE) {
   
-  # Make sure the data is sorted in the order I want it for the final chart
+  # Make sure the data is sorted in the order for the final chart
   df <- df |> arrange(.data[[y]])
   ord <- df |> select(all_of(x)) |> pull()
   df <- df |> mutate(!!x := factor(.data[[x]], levels = ord))
@@ -236,140 +236,6 @@ psrc_make_interactive <- function(plot_obj, legend=FALSE, hover=y) {
   
 }
 
-
-# Maps --------------------------------------------------------------------
-
-create_stop_buffer_map<- function(lyr=transit_buffers, buffer_name, buffer_distance=0) {
-  
-  # Trim Layer to Variable of Interest and Year
-  lyr <- lyr |> filter(stop_buffer %in% buffer_name & buffer == buffer_distance)
-  
-  labels <- paste0("<b>", paste0("Transit Type: "),"</b>", lyr$stop_buffer) |> lapply(htmltools::HTML)
-  
-  working_map <- leaflet(data = lyr) |>
-    
-    addTiles(group = "Open Street Map") |>
-    
-    addProviderTiles(providers$CartoDB.Positron, group = "Positron (minimal)") |>
-    
-    addProviderTiles(providers$Esri.WorldImagery, group = "Satellite") |>
-    
-    addLayersControl(baseGroups = c("Positron (minimal)", "Open Street Map", "Satellite"),
-                     overlayGroups = c(buffer_name),
-                     options = layersControlOptions(collapsed = TRUE)) |>
-    
-    addEasyButton(easyButton(
-      icon="fa-globe", title="Region",
-      onClick=JS("function(btn, map){map.setView([47.615,-122.257],8.5); }"))) |>
-    
-    addPolygons(data = lyr, 
-                fillColor = "#91268F",
-                fillOpacity = 1,
-                opacity = 0,
-                label = labels,
-                group = buffer_name) |>
-    
-    setView(lng = -122.257, lat = 47.615, zoom = 8.5) |>
-    
-    addLegend(colors=c("#91268F"),
-              labels=c(buffer_name),
-              group = buffer_name,
-              position = "bottomleft")
-  
-  
-  
-  return(working_map)
-  
-}
-
-create_route_map<- function(lyr=transit_layer_data, yr=current_year) {
-  
-  # Trim Layer to Variable of Interest and Year
-  lyr <- lyr |> filter(year == yr)
-  
-  # Create HCT Layers to make mapping by mode cleaner
-  brt <- lyr |> filter(type_name %in% c("BRT"))
-  crt <- lyr |> filter(type_name %in% c("Commuter Rail"))
-  lrt <- lyr |> filter(type_name %in% c("Streetcar", "Light Rail"))
-  pof <- lyr |> filter(type_name %in% c("Passenger Ferry"))
-  fry <- lyr |> filter(type_name %in% c("Auto Ferry"))
-  bus <- lyr |> filter(type_name %in% c("Bus"))
-  
-  brt_lbl <- paste0("<b>", paste0("Route Name: "),"</b>", brt$route_name) |> lapply(htmltools::HTML)
-  crt_lbl <- paste0("<b>", paste0("Route Name: "),"</b>", crt$route_name) |> lapply(htmltools::HTML)
-  lrt_lbl <- paste0("<b>", paste0("Route Name: "),"</b>", lrt$route_name) |> lapply(htmltools::HTML)
-  pof_lbl <- paste0("<b>", paste0("Route Name: "),"</b>", pof$route_name) |> lapply(htmltools::HTML)
-  fry_lbl <- paste0("<b>", paste0("Route Name: "),"</b>", fry$route_name) |> lapply(htmltools::HTML)
-  bus_lbl <- paste0("<b>", paste0("Route Name: "),"</b>", bus$route_name) |> lapply(htmltools::HTML)
-  
-  working_map <- leaflet() |>
-    
-    addTiles(group = "Open Street Map") |>
-    
-    addProviderTiles(providers$CartoDB.Positron, group = "Positron (minimal)") |>
-    
-    addProviderTiles(providers$Esri.WorldImagery, group = "Satellite") |>
-    
-    addLayersControl(baseGroups = c("Positron (minimal)", "Open Street Map", "Satellite"),
-                     overlayGroups = c("BRT", "Commuter Rail", "Light Rail", "Passenger Ferry", "Multimodal Ferry", "Bus"),
-                     options = layersControlOptions(collapsed = TRUE)) |>
-    
-    addEasyButton(easyButton(
-      icon="fa-globe", title="Region",
-      onClick=JS("function(btn, map){map.setView([47.615,-122.257],8.5); }"))) |>
-    
-    addPolylines(data = bus,
-                 color = "#BCBEC0",
-                 weight = 2,
-                 fillColor = "#BCBEC0",
-                 group = "Bus",
-                 label = bus_lbl) |>
-    
-    addPolylines(data = brt,
-                 color = "#91268F",
-                 weight = 4,
-                 fillColor = "#91268F",
-                 group = "BRT",
-                 label = brt_lbl) |>
-    
-    addPolylines(data = crt,
-                 color = "#8CC63E",
-                 weight = 4,
-                 fillColor = "#8CC63E",
-                 group = "Commuter Rail",
-                 label = crt_lbl) |>
-    
-    addPolylines(data = lrt,
-                 color = "#F05A28",
-                 weight = 4,
-                 fillColor = "#F05A28",
-                 group = "Light Rail",
-                 label = lrt_lbl) |>
-    
-    addPolylines(data = pof,
-                 color = "#40BDB8",
-                 weight = 4,
-                 fillColor = "#40BDB8",
-                 group = "Passenger Ferry",
-                 label = pof_lbl) |>
-    
-    addPolylines(data = fry,
-                 color = "#00716c",
-                 weight = 4,
-                 fillColor = "#00716c",
-                 group = "Multimodal Ferry",
-                 label = fry_lbl) |>
-    
-    setView(lng = -122.257, lat = 47.615, zoom = 8.5) |>
-    
-    addLegend(colors=c("#91268F", "#8CC63E", "#F05A28", "#40BDB8", "#00716c", "#BCBEC0"),
-              labels=c("BRT", "Commuter Rail", "Light Rail", "Passenger Ferry", "Multimodal Ferry", "Bus"),
-              position = "bottomleft")
-  
-  return(working_map)
-  
-}
-
 # Tables ------------------------------------------------------------------
 
 create_source_table <- function(d=source_info) {
@@ -415,15 +281,12 @@ create_source_table <- function(d=source_info) {
 }
 
 # Maps --------------------------------------------------------------------
-create_emphasis_area_map <- function(lyr=state_mapping_data, emphasis_area="Marriage", dec=1, colors=c("#91268F", "#BCBEC0")) {
+create_emphasis_area_map <- function(lyr, emphasis_area, dec=1, colors=c("#91268F", "#BCBEC0")) {
   
-  # Trim Layer to Variable of Interest and Year
-  l <- lyr |> select("state", rate = all_of(str_to_lower(emphasis_area)),comparison = all_of(paste0(str_to_lower(emphasis_area),"_comparison")))
+  labels <- paste0("<b>State: </b>", lyr$state, "<br>", "<b>", paste0(emphasis_area, " Rate: "),"</b>", paste0(round(lyr$rate*100, dec),"%")) |> lapply(htmltools::HTML)
+  pal <- colorFactor(palette = colors, domain = lyr$comparison)
   
-  labels <- paste0("<b>State: </b>", l$state, "<br>", "<b>", paste0(emphasis_area, " Rate: "),"</b>", paste0(round(l$rate*100, dec),"%")) |> lapply(htmltools::HTML)
-  pal <- colorFactor(palette = colors, domain = l$comparison)
-  
-  working_map <- leaflet(data = l) |>
+  working_map <- leaflet(data = lyr) |>
     
     addTiles(group = "Open Street Map") |>
     
@@ -439,7 +302,7 @@ create_emphasis_area_map <- function(lyr=state_mapping_data, emphasis_area="Marr
       icon="fa-globe", title="Region",
       onClick=JS("function(btn, map){map.setView([40,-99],3); }"))) |>
     
-    addPolygons(data = l, 
+    addPolygons(data = lyr, 
                 fillColor = ~pal(comparison),
                 fillOpacity = 0.75,
                 color = "#000000",
@@ -451,7 +314,7 @@ create_emphasis_area_map <- function(lyr=state_mapping_data, emphasis_area="Marr
     setView(lng = -99, lat = 40, zoom = 3) |>
     
     addLegend(pal = pal, 
-              values = l$comparison, 
+              values = lyr$comparison, 
               opacity = 1, 
               position = "bottomleft",
               title = "Rate Compared to National Average") 

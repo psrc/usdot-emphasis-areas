@@ -1,7 +1,7 @@
-
 # Libraries ---------------------------------------------------------------
 library(dplyr)
 library(stringr)
+library(tidyr)
 library(tidycensus)
 library(sf)
 
@@ -11,6 +11,8 @@ spn <- 2285
 
 acs_yr <- 2023
 acs_type <- "acs5"
+
+bar_items <- 25
 
 marriage_tbl <- "S1201"
 fertility_tbl <- "B13016"
@@ -63,14 +65,6 @@ d <- left_join(d, acs_detailed_labels, by=c("variable")) |>
   select(state="NAME", "geography_type", "emphasis_area", rate="estimate")
 total_population <- bind_rows(total_population, d)
 rm(d)
-
-d <- get_acs(geography = "cbsa", table = age_tbl, year = acs_yr, survey = acs_type) |> filter(str_detect(NAME, "Metro Area"))
-d <- left_join(d, acs_detailed_labels, by=c("variable"))
-t1 <- d |> filter(variable %in% youth_variables) |> select(state="NAME", "estimate") |> group_by(state) |> summarise(youth = sum(estimate)) |> as_tibble()
-t2 <- d |> filter(variable == "B01001_001") |> select(state="NAME", total="estimate")
-t3 <- left_join(t1, t2, by="state") |> mutate(rate = (youth/total), geography_type = "Metro Region", emphasis_area="Youth") |> select("state", "geography_type", "emphasis_area", "rate") |> arrange(desc(rate))
-youth_rate <- bind_rows(youth_rate, t3)
-rm(t1, t2, t3, d)
 
 d <- get_acs(geography = "cbsa", table = age_tbl, year = acs_yr, survey = acs_type) |> filter(str_detect(NAME, "Metro Area"))
 d <- left_join(d, acs_detailed_labels, by=c("variable"))
@@ -226,62 +220,99 @@ t3 <- left_join(t1, t2, by="state") |> mutate(rate = (fertility/total), geograph
 fertility_rate <- bind_rows(fertility_rate, t3)
 rm(t1, t2, t3, d)
 
-# Output final combined data ----------------------------------------------
-saveRDS(bind_rows(total_population, youth_rate, marriage_rate, fertility_rate) |> mutate(year = acs_yr), "data/federal_emphasis_areas_data.rds")
+# Combined data ----------------------------------------------
+usdot_emphasis_areas <- bind_rows(total_population, youth_rate, marriage_rate, fertility_rate) |> 
+  mutate(year = acs_yr) |>
+  mutate(emphasis_area = str_replace_all(emphasis_area, "Fertility", "Birth")) |>
+  mutate(rate = replace_na(rate, 0))
 
-# Shapefiles - US States --------------------------------------------------------------
+rm(total_population, youth_rate, marriage_rate, fertility_rate)
+
+# National ----------------------------------------------------------------
+national <- usdot_emphasis_areas |> 
+  filter(geography_type=="National")
+
+saveRDS(national, "data/national.rds")
+
+# US States --------------------------------------------------------------
 us_states <- read_sf(us_states_file) |> 
   st_transform(crs = wgs84) |> 
   filter(!(GEOID %in% us_territories)) |> 
   select(fips="GEOID", state="NAME", abbv="STUSPS")
 
 # Total Population
-top_30 <- total_population |> 
-  filter(geography_type=="Statewide") |> 
+t <- usdot_emphasis_areas |> 
+  filter(geography_type=="Statewide" & emphasis_area == "Total Population") |> 
   select("state", population="rate") |>
-  slice_max(population, n=30) |>
+  slice_max(population, n=bar_items) |>
   select("state") |>
   pull()
   
-m <- total_population |> 
-  filter(geography_type=="Statewide") |> 
+m <- usdot_emphasis_areas |> 
+  filter(geography_type=="Statewide" & emphasis_area == "Total Population") |> 
   select("state", population="rate") |> 
   mutate(population_comparison = case_when(
-    state %in% top_30 ~ "In largest areas",
-    !(state %in% top_30) ~ "Not in largest areas"))
+    state %in% t ~ "In largest areas",
+    !(state %in% t) ~ "Not in largest areas"))
+
 us_states <- left_join(us_states, m, by="state")
 
 # Marriage
-n <- marriage_rate |> filter(geography_type=="National") |> select("rate") |> pull()
-m <- marriage_rate |> 
-  filter(geography_type=="Statewide") |> 
+n <- usdot_emphasis_areas |> 
+  filter(geography_type=="National" & emphasis_area == "Marriage") |> 
+  select("rate") |> 
+  pull()
+
+m <- usdot_emphasis_areas |> 
+  filter(geography_type=="Statewide" & emphasis_area == "Marriage") |> 
   select("state", marriage="rate") |> 
   mutate(marriage_comparison = case_when(
     marriage < n ~ "Below National Average",
     marriage >= n ~ "Above National Average"))
+
 us_states <- left_join(us_states, m, by="state")
 
 # Youth
-n <- youth_rate |> filter(geography_type=="National") |> select("rate") |> pull()
-m <- youth_rate |> 
-  filter(geography_type=="Statewide") |> 
+n <- usdot_emphasis_areas |> 
+  filter(geography_type=="National" & emphasis_area == "Youth") |> 
+  select("rate") |> 
+  pull()
+
+m <- usdot_emphasis_areas |> 
+  filter(geography_type=="Statewide" & emphasis_area == "Youth") |> 
   select("state", youth="rate") |> 
   mutate(youth_comparison = case_when(
     youth < n ~ "Below National Average",
     youth >= n ~ "Above National Average"))
+
 us_states <- left_join(us_states, m, by="state")
 
 # Birth
-n <- fertility_rate |> filter(geography_type=="National") |> select("rate") |> pull()
-m <- fertility_rate |> 
-  filter(geography_type=="Statewide") |> 
+n <- usdot_emphasis_areas |> 
+  filter(geography_type=="National" & emphasis_area == "Birth") |> 
+  select("rate") |> 
+  pull()
+
+m <- usdot_emphasis_areas |> 
+  filter(geography_type=="Statewide" & emphasis_area == "Birth") |> 
   select("state", birth="rate") |> 
   mutate(birth_comparison = case_when(
     birth < n ~ "Below National Average",
     birth >= n ~ "Above National Average"))
+
 us_states <- left_join(us_states, m, by="state")
 
-saveRDS(us_states, "data/state_mapping_data.rds")
+us_states <- us_states |>
+  mutate(year = acs_yr) |>
+  select("state", "population", "population_comparison", 
+         "marriage", "marriage_comparison", 
+         "youth", "youth_comparison",
+         "birth", "birth_comparison",
+         "year") |>
+  arrange(state)
+  
+saveRDS(us_states, "data/us_states.rds")
+rm(t, m, n)
 
 # Shapefiles - MSA --------------------------------------------------------
 us_msa <- read_sf(us_msa_file) |> 
@@ -335,6 +366,9 @@ m <- fertility_rate |>
     birth < n ~ "Below National Average",
     birth >= n ~ "Above National Average"))
 us_msa <- left_join(us_msa, m, by="state")
+
+us_msa <- us_msa |>
+  slice_max(population, n=30)
 
 saveRDS(us_msa, "data/msa_mapping_data.rds")
 

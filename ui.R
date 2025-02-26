@@ -41,7 +41,7 @@ shinyUI(
                  selectizeInput(
                    "StateMetric",
                    label = "Select an Emphasis Area:",
-                   choices = emphasis_areas_list,
+                   choices = emphasis_areas,
                    selected = "Marriage",
                    options = list(dropdownParent = 'body')
                  ),
@@ -53,34 +53,34 @@ shinyUI(
                withSpinner(value_box_ui('STATEvaluebox'), color=load_clr, size = 1.5, caption = "Please wait, updating data"),
                hr(style = "border-top: 1px solid #000000;"),
                h2("State Comparisons"),
-               bar_chart_ui('STATEbarchart'),
+               withSpinner(bar_chart_ui('STATEbarchart'), color=load_clr, size = 1.5, caption = "Please wait, updating data"),
                hr(style = "border-top: 1px solid #000000;"),
-               #card_body(h3("Insights & Analysis"), htmlOutput("region_insights_text"), class = "insights_panel"),
+               card_body(h3("Insights & Analysis"), htmlOutput("state_insights_text"), class = "insights_panel"),
                hr(style = "border-top: 1px solid #000000;")
                ),
       
-      nav_panel("Metro Region", 
-                card_body(
-                  selectizeInput(
-                    "MSAMetric",
-                    label = "Select an Emphasis Area:",
-                    choices = emphasis_areas_list,
-                    selected = "Marriage",
-                    options = list(dropdownParent = 'body')
-                  ),
-                  class = "selection_panel"
-                ),
-                
-                hr(style = "border-top: 1px solid #000000;"),
-                h1("Seattle-Tacoma-Bellevue Summary"),
-                withSpinner(value_box_ui('MSAvaluebox'), color=load_clr, size = 1.5, caption = "Please wait, updating data"),
-                hr(style = "border-top: 1px solid #000000;"),
-                h2("Region Comparisons"),
-                bar_chart_ui('MSAbarchart'),
-                hr(style = "border-top: 1px solid #000000;"),
-                #card_body(h3("Insights & Analysis"), htmlOutput("region_insights_text"), class = "insights_panel"),
-                hr(style = "border-top: 1px solid #000000;")
-      ),
+      # nav_panel("Metro Region", 
+      #           card_body(
+      #             selectizeInput(
+      #               "MSAMetric",
+      #               label = "Select an Emphasis Area:",
+      #               choices = emphasis_areas_list,
+      #               selected = "Marriage",
+      #               options = list(dropdownParent = 'body')
+      #             ),
+      #             class = "selection_panel"
+      #           ),
+      #           
+      #           hr(style = "border-top: 1px solid #000000;"),
+      #           h1("Seattle-Tacoma-Bellevue Summary"),
+      #           withSpinner(value_box_ui('MSAvaluebox'), color=load_clr, size = 1.5, caption = "Please wait, updating data"),
+      #           hr(style = "border-top: 1px solid #000000;"),
+      #           h2("Region Comparisons"),
+      #           withSpinner(bar_chart_ui('MSAbarchart'), color=load_clr, size = 1.5, caption = "Please wait, updating data"),
+      #           hr(style = "border-top: 1px solid #000000;"),
+      #           #card_body(h3("Insights & Analysis"), htmlOutput("region_insights_text"), class = "insights_panel"),
+      #           hr(style = "border-top: 1px solid #000000;")
+      # ),
       # 
       # nav_panel("Mode", 
       #           card_body(

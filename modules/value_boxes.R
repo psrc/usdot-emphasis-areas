@@ -11,15 +11,29 @@ value_box_server <- function(id, df, v, gt) {
   moduleServer(id, function(input, output, session){
     ns <- session$ns
     
-    national_df <- reactive(df |> filter(emphasis_area == v() & state == "United States" & geography_type == "National"))
-    filtered_df <- reactive(df |> filter(emphasis_area == v() & geography_type == gt()))
+    national_rate <- reactive({
+      if(v() == "Birth") {
+        national_birth
+      } else if (v() == "Marriage") {
+        national_marriage
+      } else {
+        national_youth
+      }
+      })
+    
+    filtered_df <- reactive({
+      df |> 
+        st_drop_geometry() |>
+        select("state", rate = all_of(str_to_lower(v()))) |>
+        filter(state == "Washington")
+      })
     
     # Output Values
     output$national_title <- renderUI(paste0("National ", v(), " rate in ", census_yr))
-    output$national_value <- renderText({paste0(round((national_df() |> select("rate") |> pull()*100), 1), "%")})
+    output$national_value <- renderText({paste0(round((national_rate()*100), 1), "%")})
     
     output$wa_title <- renderUI(paste0("Washington State ", v(), " rate in ", census_yr))
-    output$wa_value <- renderText({paste0(round((filtered_df() |> filter(state == "Washington") |> select("rate") |> pull()*100), 1), "%")})
+    output$wa_value <- renderText({paste0(round((filtered_df() |> select("rate") |> pull()*100), 1), "%")})
     
     # Tab layout
     output$summary_boxes <- renderUI({

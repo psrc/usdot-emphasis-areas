@@ -9,15 +9,15 @@ shinyServer(function(input, output) {
 
 # State Summary Page -----------------------------------------------------
 # 
-#   output$region_insights_text <- renderUI({HTML(page_information(tbl=page_text, page_name="Transit", page_section = "Region", page_info = "description"))})
- value_box_server('STATEvaluebox', df=census_data, v=reactive(input$StateMetric), gt=reactive("Statewide"))
- bar_chart_server('STATEbarchart', df=census_data, v=reactive(input$StateMetric), gt=reactive("Statewide"), color = c("#91268F", "#BCBEC0", "#00A7A0"), chart_height = '600px', chart_legend=FALSE)
+ output$state_insights_text <- renderUI({HTML(page_information(tbl=page_text, page_name="State", page_section = "Summary", page_info = "description"))})
+ value_box_server('STATEvaluebox', df=state_data, v=reactive(input$StateMetric), gt="Statewide")
+ bar_chart_server('STATEbarchart', df=state_data, v=reactive(input$StateMetric), color = c("#91268F", "#BCBEC0", "#00A7A0"), chart_height = '800px', chart_legend=FALSE)
 
 # Region Summary Page -----------------------------------------------------
 # 
 #   output$region_insights_text <- renderUI({HTML(page_information(tbl=page_text, page_name="Transit", page_section = "Region", page_info = "description"))})
- value_box_server('MSAvaluebox', df=census_data, v=reactive(input$MSAMetric), gt=reactive("Metro Region"))
- bar_chart_server('MSAbarchart', df=census_data, v=reactive(input$MSAMetric), gt=reactive("Metro Region"), map_lyr = msa_mapping_data, color = c("#91268F", "#BCBEC0", "#00A7A0"), chart_height = '750px', chart_legend=FALSE)
+# value_box_server('MSAvaluebox', df=census_data, v=reactive(input$MSAMetric), gt=reactive("Metro Region"))
+# bar_chart_server('MSAbarchart', df=census_data, v=reactive(input$MSAMetric), gt=reactive("Metro Region"), map_lyr = msa_mapping_data, color = c("#91268F", "#BCBEC0", "#00A7A0"), chart_height = '750px', chart_legend=FALSE)
  
  
 # # Mode Summary Page -------------------------------------------------------

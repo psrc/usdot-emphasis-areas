@@ -7,11 +7,25 @@ bar_chart_ui <- function(id) {
   )
 }
 
-bar_chart_server <- function(id, df, v, gt, color, chart_height = '800px', chart_labels = scales::label_comma(), map_lyr = state_mapping_data, chart_legend=TRUE) {
+bar_chart_server <- function(id, df, v, color, chart_height = '800px', chart_labels = scales::label_comma(), chart_legend=TRUE) {
   moduleServer(id, function(input, output, session){
     ns <- session$ns
     
-    filtered_df <- reactive(df |> filter(emphasis_area == v() & geography_type == gt()) |> filter(state %in% top_30) |> arrange(rate))
+    # Filter the dataframe based on the layer passed and strip out the spatial part for the bar chart
+    filtered_df <- reactive({
+      df |> 
+        st_drop_geometry() |>
+        select("state", rate = all_of(str_to_lower(v())), comparison = all_of(paste0(str_to_lower(v()), "_comparison"))) |>
+        mutate(comparison = case_when(
+          state == "Washington" ~ "Washington State",
+          state != "Washington" ~ comparison)) |>
+        arrange(rate)
+                   })
+    
+    filtered_map_lyr <- reactive({
+      df |> 
+        select("state", rate = all_of(str_to_lower(v())), comparison = all_of(paste0(str_to_lower(v()), "_comparison")))
+    })
     
     # Charts & Maps
     output$bar_chart <- renderPlotly({
@@ -45,7 +59,7 @@ bar_chart_server <- function(id, df, v, gt, color, chart_height = '800px', chart
       
     })
     
-    output$map <- renderLeaflet({create_emphasis_area_map(lyr = map_lyr, emphasis_area = v())})
+    output$map <- renderLeaflet({create_emphasis_area_map(lyr = filtered_map_lyr(), emphasis_area = v())})
     
     # Tab layout
     output$barchart <- renderUI({
