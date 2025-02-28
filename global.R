@@ -32,6 +32,10 @@ emphasis_areas <- c("Birth", "Marriage", "Youth")
 
 # Data via RDS files ------------------------------------------------------
 state_data <- readRDS("data/us_states.rds") 
+congressional_data <- readRDS("data/wa_congressional.rds") 
+county_data <- readRDS("data/wa_counties.rds") 
+city_data <- readRDS("data/wa_cities.rds") 
+
 national_data <- readRDS("data/national.rds")
 
 national_youth <- national_data |> 

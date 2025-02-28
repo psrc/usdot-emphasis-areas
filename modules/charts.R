@@ -7,7 +7,7 @@ bar_chart_ui <- function(id) {
   )
 }
 
-bar_chart_server <- function(id, df, v, color, chart_height = '800px', chart_labels = scales::label_comma(), chart_legend=TRUE) {
+bar_chart_server <- function(id, df, v, color, chart_height = '800px', chart_labels = scales::label_comma(), chart_legend=TRUE, w.ln=-99, w.lt=40, w.zm=3) {
   moduleServer(id, function(input, output, session){
     ns <- session$ns
     
@@ -59,7 +59,7 @@ bar_chart_server <- function(id, df, v, color, chart_height = '800px', chart_lab
       
     })
     
-    output$map <- renderLeaflet({create_emphasis_area_map(lyr = filtered_map_lyr(), emphasis_area = v())})
+    output$map <- renderLeaflet({create_emphasis_area_map(lyr = filtered_map_lyr(), emphasis_area = v(), ln=w.ln, lt=w.lt, zm=w.zm)})
     
     # Tab layout
     output$barchart <- renderUI({

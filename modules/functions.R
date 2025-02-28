@@ -281,7 +281,7 @@ create_source_table <- function(d=source_info) {
 }
 
 # Maps --------------------------------------------------------------------
-create_emphasis_area_map <- function(lyr, emphasis_area, dec=1, colors=c("#91268F", "#BCBEC0")) {
+create_emphasis_area_map <- function(lyr, emphasis_area, dec=1, colors=c("#91268F", "#BCBEC0"), ln, lt, zm) {
   
   labels <- paste0("<b>State: </b>", lyr$state, "<br>", "<b>", paste0(emphasis_area, " Rate: "),"</b>", paste0(round(lyr$rate*100, dec),"%")) |> lapply(htmltools::HTML)
   pal <- colorFactor(palette = colors, domain = lyr$comparison)
@@ -298,9 +298,9 @@ create_emphasis_area_map <- function(lyr, emphasis_area, dec=1, colors=c("#91268
                      overlayGroups = c(paste0(emphasis_area, "Rate")),
                      options = layersControlOptions(collapsed = TRUE)) |>
     
-    addEasyButton(easyButton(
-      icon="fa-globe", title="Region",
-      onClick=JS("function(btn, map){map.setView([40,-99],3); }"))) |>
+    #addEasyButton(easyButton(
+    #  icon="fa-globe", title="Region",
+    #  onClick=JS("function(btn, map){map.setView([40,-99],3); }"))) |>
     
     addPolygons(data = lyr, 
                 fillColor = ~pal(comparison),
@@ -311,7 +311,7 @@ create_emphasis_area_map <- function(lyr, emphasis_area, dec=1, colors=c("#91268
                 label = labels,
                 group = paste0(emphasis_area, "Rate")) |>
     
-    setView(lng = -99, lat = 40, zoom = 3) |>
+    setView(lng = ln, lat = lt, zoom = zm) |>
     
     addLegend(pal = pal, 
               values = lyr$comparison, 

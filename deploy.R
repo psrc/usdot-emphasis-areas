@@ -2,7 +2,7 @@
 # official version ----
 library(rsconnect)
 deployApp(account = 'psrcwa',
-         appName = 'emphasis-areas',
+         appName = 'usdot-emphasis-areas',
          appTitle = 'USDOT Emphasis Areas')
 
  
