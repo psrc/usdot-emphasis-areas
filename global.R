@@ -36,6 +36,7 @@ congressional_data <- readRDS("data/wa_congressional.rds")
 county_data <- readRDS("data/wa_counties.rds") 
 city_data <- readRDS("data/wa_cities.rds") 
 tract_data <- readRDS("data/wa_tracts.rds")
+msa_data <- readRDS("data/us_msa.rds")
 
 national_data <- readRDS("data/national.rds")
 
@@ -55,6 +56,8 @@ national_marriage <- national_data |>
   pull()
 
 census_yr <- unique(state_data$year)
+
+source_info <- read_csv("data/source_information.csv", show_col_types = FALSE)
 
 # Run Modules Files ---------------------------------------------------------------------------
 module_files <- list.files('modules', full.names = TRUE)

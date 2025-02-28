@@ -255,7 +255,7 @@ create_source_table <- function(d=source_info) {
                                           searching = FALSE,
                                           dom = 't',
                                           headerCallback = JS(headerCallbackRemoveHeaderFooter),
-                                          columnDefs = list(list(targets = c(0,3), className = 'dt-left'))),
+                                          columnDefs = list(list(targets = c(0,2), className = 'dt-left'))),
                            selection = 'none',
                            callback = JS(
                              "$('table.dataTable.no-footer').css('border-bottom', 'none');"
@@ -270,11 +270,11 @@ create_source_table <- function(d=source_info) {
   
   summary_tbl <- summary_tbl |>
     formatStyle(0:ncol(t), valueColumns = "Data Point",
-                `border-bottom` = styleEqual(c("Boardings per Hour", "Total Population in Stop Buffers", "Transit Service"), "solid 2px"))
+                `border-bottom` = styleEqual(c("Population under 18", "PSRC Census Tracts"), "solid 2px"))
   
   summary_tbl <- summary_tbl |>
     formatStyle(0:ncol(t), valueColumns = "Data Point",
-                `border-top` = styleEqual(c("Boardings"), "solid 2px"))
+                `border-top` = styleEqual(c("Marriage Rates"), "solid 2px"))
     
   return(summary_tbl)
   

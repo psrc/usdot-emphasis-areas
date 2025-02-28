@@ -136,17 +136,36 @@ shinyUI(
                 hr(style = "border-top: 1px solid #000000;")
       ),
       
-      # 
-      # nav_panel(icon("info-circle"), 
-      #           h1("Data Sources"),
-      #           htmlOutput("source_overview_text"),
-      #           hr(style = "border-top: 1px solid #000000;"),
-      #           card(
-      #             full_screen = TRUE,
-      #             withSpinner(dataTableOutput("source_table"), color=load_clr, size = 1.5, caption = "Please wait, loading table")
-      #             ),
-      #           hr(style = "border-top: 1px solid #000000;")
-      # ),
+      nav_panel("Metro Region", 
+                card_body(
+                  selectizeInput(
+                    "MSAMetric",
+                    label = "Select an Emphasis Area:",
+                    choices = emphasis_areas,
+                    selected = "Marriage",
+                    options = list(dropdownParent = 'body')
+                  ),
+                  class = "selection_panel"
+                ),
+                
+                hr(style = "border-top: 1px solid #000000;"),
+                h1("Larger Metro Region Summary"),
+                withSpinner(bar_chart_ui('MSAbarchart'), color=load_clr, size = 1.5, caption = "Please wait, updating data"),
+                hr(style = "border-top: 1px solid #000000;"),
+                card_body(h3("Insights & Analysis"), htmlOutput("msa_insights_text"), class = "insights_panel"),
+                hr(style = "border-top: 1px solid #000000;")
+      ),
+      
+      nav_panel(icon("info-circle"), 
+               h1("Data Sources"),
+               htmlOutput("source_overview_text"),
+               hr(style = "border-top: 1px solid #000000;"),
+               card(
+                 full_screen = TRUE,
+                 withSpinner(dataTableOutput("source_table"), color=load_clr, size = 1.5, caption = "Please wait, loading table")
+                 ),
+               hr(style = "border-top: 1px solid #000000;")
+      ),
     
       br(), br(),
     

@@ -1,5 +1,6 @@
 # Libraries ---------------------------------------------------------------
 library(dplyr)
+library(readr)
 library(stringr)
 library(tidyr)
 library(tidycensus)
@@ -26,6 +27,7 @@ wa_congressional_file <- "C:/Users/chelmann/Puget Sound Regional Council/2026-20
 wa_county_file <- "C:/Users/chelmann/Puget Sound Regional Council/2026-2050 RTP Trends - General/Federal/data/WA_County_Boundaries.shp"
 wa_city_file <- "C:/Users/chelmann/Puget Sound Regional Council/2026-2050 RTP Trends - General/Federal/data/WSDOT_-_City_Limits.shp"
 wa_tract_file <- "C:/Users/chelmann/Puget Sound Regional Council/2026-2050 RTP Trends - General/Federal/data/OFM_SAEP_Census_Tracts.shp"
+msa_comparison_file <- "C:/Users/chelmann/Puget Sound Regional Council/2026-2050 RTP Trends - General/Federal/data/msa_comparisons.csv"
 
 # Variable Labels ---------------------------------------------------------
 acs_detailed_labels <- load_variables(year = acs_yr, dataset = acs_type, cache = TRUE) |> select(variable = "name", "label", "concept")
@@ -731,67 +733,81 @@ wa_tracts <- wa_tracts |>
 saveRDS(wa_tracts, "data/wa_tracts.rds")
 rm(m, n)
 
+# Metro Areas --------------------------------------------------------
+msa_comparisons <- read_csv(msa_comparison_file, show_col_types = FALSE)
+msa_ids <- msa_comparisons |> select("fips") |> pull()
+msa_names <- msa_comparisons |> select("fips", "state", "name") |> mutate(fips = as.character(fips))
 
-
-
-
-
-
-# Major Metro Areas --------------------------------------------------------
 us_msa <- read_sf(us_msa_file) |> 
   st_transform(crs = wgs84) |> 
-  filter(LSAD == "M1" & !(str_detect(NAME, "PR"))) |> 
-  select(fips="GEOID", state="NAMELSAD")
+  select(fips="GEOID") |>
+  filter(fips %in% msa_ids) 
 
+us_msa <- left_join(us_msa, msa_names, by="fips")
+  
 # Total Population
-top_30 <- total_population |> 
-  filter(geography_type=="Metro Region") |> 
-  select("state", population="rate") |>
-  slice_max(population, n=30) |>
-  select("state") |>
-  pull()
-
-m <- total_population |> 
-  filter(geography_type=="Metro Region") |> 
+m <- usdot_emphasis_areas |> 
+  filter(geography_type=="Metro Region" & emphasis_area == "Total Population") |> 
   select("state", population="rate") |> 
-  mutate(population_comparison = case_when(
-    state %in% top_30 ~ "In largest areas",
-    !(state %in% top_30) ~ "Not in largest areas"))
+  mutate(population_comparison = "In largest areas")
 
 us_msa <- left_join(us_msa, m, by="state")
 
 # Marriage
-n <- marriage_rate |> filter(geography_type=="National") |> select("rate") |> pull()
-m <- marriage_rate |> 
-  filter(geography_type=="Metro Region") |> 
+n <- usdot_emphasis_areas |> 
+  filter(geography_type=="National" & emphasis_area == "Marriage") |> 
+  select("rate") |> 
+  pull()
+
+m <- usdot_emphasis_areas |> 
+  filter(geography_type=="Metro Region" & emphasis_area == "Marriage") |> 
   select("state", marriage="rate") |> 
   mutate(marriage_comparison = case_when(
     marriage < n ~ "Below National Average",
     marriage >= n ~ "Above National Average"))
+
 us_msa <- left_join(us_msa, m, by="state")
 
 # Youth
-n <- youth_rate |> filter(geography_type=="National") |> select("rate") |> pull()
-m <- youth_rate |> 
-  filter(geography_type=="Metro Region") |> 
+n <- usdot_emphasis_areas |> 
+  filter(geography_type=="National" & emphasis_area == "Youth") |> 
+  select("rate") |> 
+  pull()
+
+m <- usdot_emphasis_areas |> 
+  filter(geography_type=="Metro Region" & emphasis_area == "Youth") |> 
   select("state", youth="rate") |> 
   mutate(youth_comparison = case_when(
     youth < n ~ "Below National Average",
     youth >= n ~ "Above National Average"))
+
 us_msa <- left_join(us_msa, m, by="state")
 
 # Birth
-n <- fertility_rate |> filter(geography_type=="National") |> select("rate") |> pull()
-m <- fertility_rate |> 
-  filter(geography_type=="Metro Region") |> 
+n <- usdot_emphasis_areas |> 
+  filter(geography_type=="National" & emphasis_area == "Birth") |> 
+  select("rate") |> 
+  pull()
+
+m <- usdot_emphasis_areas |> 
+  filter(geography_type=="Metro Region" & emphasis_area == "Birth") |> 
   select("state", birth="rate") |> 
   mutate(birth_comparison = case_when(
     birth < n ~ "Below National Average",
     birth >= n ~ "Above National Average"))
+
 us_msa <- left_join(us_msa, m, by="state")
 
 us_msa <- us_msa |>
-  slice_max(population, n=30)
+  mutate(year = acs_yr) |>
+  select("name", "population", "population_comparison", 
+         "marriage", "marriage_comparison", 
+         "youth", "youth_comparison",
+         "birth", "birth_comparison",
+         "year") |>
+  rename(state = "name") |>
+  arrange(state)
 
-saveRDS(us_msa, "data/msa_mapping_data.rds")
+saveRDS(us_msa, "data/us_msa.rds")
+rm(m, n)
 

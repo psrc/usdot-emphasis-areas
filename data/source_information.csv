@@ -1,14 +1,10 @@
-﻿Data Point,Tab,Source,Date
-Boardings,"Region, Mode, Operator","National Transit Database, Federal Transit Administration, Raw Monthly Ridership",2024 October 31st
-Revenue-Miles,"Region, Mode, Operator","National Transit Database, Federal Transit Administration, Raw Monthly Ridership",2024 October 31st
-Revenue-Hours,"Region, Mode, Operator","National Transit Database, Federal Transit Administration, Raw Monthly Ridership",2024 October 31st
-Boardings per Hour,"Region, Mode, Operator","National Transit Database, Federal Transit Administration, Raw Monthly Ridership",2024 October 31st
-People of Color,"Type, Frequency","US Census Bureau American Community Survey 5-yr Tract data, Table B03002",2018-2022 5yr Data
-People with Lower Incomes,"Type, Frequency","US Census Bureau American Community Survey 5-yr Tract data, Table C17002",2018-2022 5yr Data
-People with Limited English,"Type, Frequency","US Census Bureau American Community Survey 5-yr Tract data, Table C16001",2018-2022 5yr Data
-People with a Disability,"Type, Frequency","US Census Bureau American Community Survey 5-yr Tract data, Table C18130",2018-2022 5yr Data
-People under 18,"Type, Frequency","US Census Bureau American Community Survey 5-yr Tract data, Table B01001",2018-2022 5yr Data
-People over 65,"Type, Frequency","US Census Bureau American Community Survey 5-yr Tract data, Table B01001",2018-2022 5yr Data
-Total Population,"Type, Frequency","US Census Bureau American Community Survey 5-yr Tract data, Table B01001",2018-2022 5yr Data
-Total Population in Stop Buffers,"Type, Frequency",Office of Financial Management SAEP Program & PSRC Parcelization,Fall 2024 SAEP Data
-Transit Service,"Type, Frequency, Routes",General Transit Feed Specifications by Agency,Fall 2016-2024 Service Change
+﻿Data Point,Source,Date
+Marriage Rates,"US Census Bureau American Community Survey 5-yr data, Subject Table S1201",2019-2023 5yr Data
+Fertility (Birth) Rates,"US Census Bureau American Community Survey 5-yr data, DetailedTable B13016",2019-2023 5yr Data
+Population under 18,"US Census Bureau American Community Survey 5-yr data, Detailed Table B01001",2019-2023 5yr Data
+US States,"US Census Bureau mapping files, layer ""cb_2018_us_state_500k""",downloaded February 2025
+US Metro Regions,"US Census Bureau mapping files, layer ""tl_2024_us_cbsa""",downloaded February 2025
+WA Congressional Districts,"Washington State Geospatial Open Data Portal, layer ""Washington_State_Congressional_Districts_2022""",downloaded February 2025
+WA Counties,"Washington State Geospatial Open Data Portal, layer ""WA_County_Boundaries""",downloaded February 2025
+PSRC Cities,"Washington State Geospatial Open Data Portal, layer ""WSDOT_-_City_Limits"" filtered to King, Kitsap, Pierce & Snohomish Counties",downloaded February 2025
+PSRC Census Tracts,"Washington State Geospatial Open Data Portal, layer ""OFM_SAEP_Census_Tracts"" filtered to King, Kitsap, Pierce & Snohomish Counties",downloaded February 2025
