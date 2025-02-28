@@ -281,9 +281,15 @@ create_source_table <- function(d=source_info) {
 }
 
 # Maps --------------------------------------------------------------------
-create_emphasis_area_map <- function(lyr, emphasis_area, dec=1, colors=c("#91268F", "#BCBEC0"), ln, lt, zm) {
+create_emphasis_area_map <- function(lyr, emphasis, dec=1, colors=c("#91268F", "#BCBEC0"), ln, lt, zm) {
   
-  labels <- paste0("<b>State: </b>", lyr$state, "<br>", "<b>", paste0(emphasis_area, " Rate: "),"</b>", paste0(round(lyr$rate*100, dec),"%")) |> lapply(htmltools::HTML)
+  national_value <- national_data |> filter(emphasis_area == emphasis) |> select(rate) |> pull()
+  labels <- paste0("<b>Geography: </b>", lyr$state, "<br>", 
+                   "<b>", paste0(emphasis, " Rate: "),"</b>", paste0(round(lyr$rate*100, dec),"%"), "<br>",
+                   "<b>National Rate: </b>", paste0(round(national_value*100, dec),"%"), "<br>",
+                   "<b>Comparison: </b>", lyr$comparison) |> 
+    lapply(htmltools::HTML)
+  
   pal <- colorFactor(palette = colors, domain = lyr$comparison)
   
   working_map <- leaflet(data = lyr) |>
@@ -295,7 +301,7 @@ create_emphasis_area_map <- function(lyr, emphasis_area, dec=1, colors=c("#91268
     addProviderTiles(providers$Esri.WorldImagery, group = "Satellite") |>
     
     addLayersControl(baseGroups = c("Positron (minimal)", "Open Street Map", "Satellite"),
-                     overlayGroups = c(paste0(emphasis_area, "Rate")),
+                     overlayGroups = c(paste0(emphasis, "Rate")),
                      options = layersControlOptions(collapsed = TRUE)) |>
     
     #addEasyButton(easyButton(
@@ -309,7 +315,7 @@ create_emphasis_area_map <- function(lyr, emphasis_area, dec=1, colors=c("#91268
                 weight = 1,
                 opacity = 0.5,
                 label = labels,
-                group = paste0(emphasis_area, "Rate")) |>
+                group = paste0(emphasis, "Rate")) |>
     
     setView(lng = ln, lat = lt, zoom = zm) |>
     

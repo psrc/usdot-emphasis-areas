@@ -35,6 +35,7 @@ state_data <- readRDS("data/us_states.rds")
 congressional_data <- readRDS("data/wa_congressional.rds") 
 county_data <- readRDS("data/wa_counties.rds") 
 city_data <- readRDS("data/wa_cities.rds") 
+tract_data <- readRDS("data/wa_tracts.rds")
 
 national_data <- readRDS("data/national.rds")
 

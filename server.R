@@ -46,6 +46,15 @@ shinyServer(function(input, output) {
                   chart_legend=FALSE,
                   w.ln = -122.257, w.lt=47.615, w.zm=8.5)
  
+# Tract Summary Page -----------------------------------------------------
+ output$tract_insights_text <- renderUI({HTML(page_information(tbl=page_text, page_name="City", page_section = "Summary", page_info = "description"))})
+ map_server('TRACTmap', 
+                  df=tract_data, 
+                  v=reactive(input$TractMetric), 
+                  color = c("#91268F", "#BCBEC0", "#00A7A0"), 
+                  map_height = '600px', 
+                  w.ln = -122.257, w.lt=47.615, w.zm=8.5)
+ 
 # # Source Tab --------------------------------------------------------------
 # 
 #   output$source_table <- renderDataTable(create_source_table(d=source_info))  

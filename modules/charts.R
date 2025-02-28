@@ -59,7 +59,7 @@ bar_chart_server <- function(id, df, v, color, chart_height = '800px', chart_lab
       
     })
     
-    output$map <- renderLeaflet({create_emphasis_area_map(lyr = filtered_map_lyr(), emphasis_area = v(), ln=w.ln, lt=w.lt, zm=w.zm)})
+    output$map <- renderLeaflet({create_emphasis_area_map(lyr = filtered_map_lyr(), emphasis = v(), ln=w.ln, lt=w.lt, zm=w.zm)})
     
     # Tab layout
     output$barchart <- renderUI({
@@ -79,16 +79,6 @@ bar_chart_server <- function(id, df, v, color, chart_height = '800px', chart_lab
             )
           )
         ),
-        
-        # card(
-        #   full_screen = FALSE,
-        #   plotlyOutput(ns("bar_chart"), height = chart_height)
-        # ),
-        # 
-        # card(
-        #   full_screen = FALSE,
-        #   leafletOutput(ns("map"))
-        # ),
 
         br(),
         

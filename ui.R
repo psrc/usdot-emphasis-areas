@@ -116,6 +116,26 @@ shinyUI(
                 hr(style = "border-top: 1px solid #000000;")
       ),
       
+      nav_panel("Census Tracts", 
+                card_body(
+                  selectizeInput(
+                    "TractMetric",
+                    label = "Select an Emphasis Area:",
+                    choices = emphasis_areas,
+                    selected = "Marriage",
+                    options = list(dropdownParent = 'body')
+                  ),
+                  class = "selection_panel"
+                ),
+                
+                hr(style = "border-top: 1px solid #000000;"),
+                h1("PSRC Census Tract Summary"),
+                withSpinner(map_ui('TRACTmap'), color=load_clr, size = 1.5, caption = "Please wait, updating data"),
+                hr(style = "border-top: 1px solid #000000;"),
+                card_body(h3("Insights & Analysis"), htmlOutput("tract_insights_text"), class = "insights_panel"),
+                hr(style = "border-top: 1px solid #000000;")
+      ),
+      
       # 
       # nav_panel(icon("info-circle"), 
       #           h1("Data Sources"),
