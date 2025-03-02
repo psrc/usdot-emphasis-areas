@@ -67,6 +67,12 @@ shinyServer(function(input, output) {
 
  output$source_table <- renderDataTable(create_source_table(d=source_info))  
  output$source_overview_text <- renderUI({HTML(page_information(tbl=page_text, page_name="Source", page_section = "Overview", page_info = "description"))})
+ output$downloadData <- downloadHandler(
+   filename = function() {paste0("potential_usdot_emphasis_area_data.xlsx")},
+   content <- function(file) {file.copy(paste0("data/potential_usdot_emphasis_area_data.xlsx"),file)},
+   contentType = "application/Excel"
+ )
+  
 
 }) # end of shinyServer function 
 

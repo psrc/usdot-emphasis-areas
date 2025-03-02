@@ -328,3 +328,67 @@ create_emphasis_area_map <- function(lyr, emphasis, dec=1, colors=c("#91268F", "
   return(working_map)
   
 }
+
+# Summary Workbook --------------------------------------------------------
+
+create_public_spreadsheet <- function(table_list) {
+  
+  hs <- createStyle(
+    fontColour = "black",
+    border = "bottom",
+    fgFill = "#00a7a0",
+    halign = "center",
+    valign = "center",
+    textDecoration = "bold"
+  )
+  
+  ns <- createStyle(
+    fontName = "Poppins",
+    fontColour = "black",
+    fontSize = 11,
+    halign = "left",
+    valign = "center",
+  )
+  
+  table_idx <- 1
+  sheet_idx <- 2
+  
+  wb <- loadWorkbook("data/metadata.xlsx")
+  
+  # Set Font Style
+  addStyle(wb = wb, sheet = "Data Notes", style = ns, rows = 1:2, cols = 2)
+  
+  writeData(
+    wb = wb,
+    sheet = "Data Notes",
+    x = " ",
+    xy = c(2,1))
+  
+  writeData(
+    wb = wb,
+    sheet = "Data Notes",
+    x = Sys.Date(),
+    xy = c(2,2))
+  
+  for (i in table_list) {
+    for (j in names(table_list)) {
+      if (names(table_list)[table_idx] == j) {
+        
+        addWorksheet(wb, sheetName = j)
+        writeDataTable(wb, sheet = sheet_idx, x = i, tableStyle = "none", headerStyle = hs, withFilter = FALSE)
+        setColWidths(wb, sheet = sheet_idx, cols = 1:length(i), widths = "auto")
+        freezePane(wb, sheet = sheet_idx, firstRow = TRUE)
+        
+      } else {next}
+    }
+    if (table_idx < length(table_list)) {
+      
+      table_idx <- table_idx + 1
+      sheet_idx <- sheet_idx + 1
+      
+    } else {break}
+  }
+  
+  return(wb)
+}
+

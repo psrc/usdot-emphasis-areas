@@ -160,6 +160,8 @@ shinyUI(
                h1("Data Sources"),
                htmlOutput("source_overview_text"),
                hr(style = "border-top: 1px solid #000000;"),
+               downloadLink('downloadData', label = "Download Data in Excel Format"),
+               hr(style = "border-top: 1px solid #000000;"),
                card(
                  full_screen = TRUE,
                  withSpinner(dataTableOutput("source_table"), color=load_clr, size = 1.5, caption = "Please wait, loading table")

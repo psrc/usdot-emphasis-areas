@@ -25,6 +25,9 @@ library(leaflet)
 # Packages for Tables
 library(DT)
 
+# Package for Excel Data Creation
+library(openxlsx)
+
 # Inputs ---------------------------------------------------------------
 wgs84 <- 4326
 load_clr <- "#91268F"
@@ -66,3 +69,13 @@ sapply(module_files, source)
 # Page Information --------------------------------------------------------
 page_text <- read_csv("data/page_text.csv", show_col_types = FALSE)
 psrc_mission <- "Our mission is to advance solutions to achieve a thriving, racially equitable, and sustainable central Puget Sound region through leadership, visionary planning, and collaboration."
+
+# Summary Spreadsheet -----------------------------------------------------
+summary_tables <- list("Statewide" = state_data |> st_drop_geometry() |> select(-"population_comparison") |> rename(geography="state"),
+                       "MSA" = msa_data |> st_drop_geometry() |> select(-"population_comparison") |> rename(geography="state"), 
+                       "WA_Congressional" = congressional_data |> st_drop_geometry() |> select(-"population_comparison") |> rename(geography="state"), 
+                       "WA_County" = county_data |> st_drop_geometry() |> select(-"population_comparison") |> rename(geography="state"), 
+                       "PSRC_City" = city_data |> st_drop_geometry() |> select(-"population_comparison") |> rename(geography="state"), 
+                       "PSRC_Tract" = tract_data |> st_drop_geometry() |> select(-"population_comparison") |> rename(geography="state"))
+
+saveWorkbook(create_public_spreadsheet(table_list = summary_tables), file = "data/potential_usdot_emphasis_area_data.xlsx", overwrite = TRUE)
