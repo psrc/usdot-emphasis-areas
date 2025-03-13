@@ -55,7 +55,7 @@ shinyServer(function(input, output) {
                   chart_legend=FALSE)
  
 # Tract Summary Page -----------------------------------------------------
- output$tract_insights_text <- renderUI({HTML(page_information(tbl=page_text, page_name="City", page_section = "Summary", page_info = "description"))})
+ output$tract_insights_text <- renderUI({HTML(page_information(tbl=page_text, page_name="Tract", page_section = "Summary", page_info = "description"))})
  map_server('TRACTmap', 
                   df=tract_data, 
                   v=reactive(input$TractMetric), 
